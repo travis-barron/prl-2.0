@@ -20,7 +20,7 @@ type DriverRow = {
 
 export async function GET(
   req: Request,
-  { params }: { params: Promise<{ id: number }> }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   const n = await params;
   const driverId = n.id
