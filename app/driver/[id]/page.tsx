@@ -20,7 +20,7 @@ export default async function DriverPage({
   const driverId = Number(id)
 
   if (Number.isNaN(driverId)) {
-    return Response.json({ error: "Invalid driver id" }, { status: 400 })
+    return <p>Driver not found</p>
   }
 
   const data = await getDriver(driverId)
