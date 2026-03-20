@@ -1,7 +1,17 @@
-import { parseNR2003 } from "@/lib/parseNR2003"
-import { ingestRace } from "@/lib/ingestRace"
+import { createClient } from '@/lib/supabaseClient'
+import { parseNR2003 } from '@/lib/parseNR2003'
+import { ingestRace } from '@/lib/ingestRace'
 
 export async function POST(req: Request) {
+  const supabase = await createClient()
+
+  const {
+    data: { user }, 
+  } = await supabase.auth.getUser()
+
+  if (!user) {
+  return Response.json({ error: "Unauthorized" }, { status: 401 })
+}
 
   const formData = await req.formData()
   const file = formData.get("file") as File

@@ -3,8 +3,28 @@
 import Link from "next/link"
 import Image from "next/image"
 import { usePathname } from "next/navigation"
+import { createClient } from "@/lib/supabaseBrowserClient"
+import { useState, useEffect } from 'react'
+
+const supabase = createClient()
+
+async function logout() {
+    const supabase = await createClient()
+    await supabase.auth.signOut()
+    window.location.href = "/login"
+}
 
 export default function NavBar() {
+    const [user, setUser] = useState<any>(null);
+
+    useEffect(() => {
+        supabase.auth.getUser().then(({ data }) => {
+            setUser(data.user);
+        })
+    })
+
+    const authText = user != null ? 'Logout' : 'Login'
+
     const pathname = usePathname()
 
     const linkStyle = (path: string) => ({
@@ -27,11 +47,11 @@ export default function NavBar() {
                 }}
             >
                 <Image src="/PRL_Header.png"
-                alt="Punk Racing League"
-                className="margin-0"
-                width={100}
-                height={100}
-                priority />
+                    alt="Punk Racing League"
+                    className="margin-0"
+                    width={100}
+                    height={100}
+                    priority />
 
                 <Link href="/" style={linkStyle("/")}>
                     Home
@@ -44,15 +64,23 @@ export default function NavBar() {
                 <Link href="/race" style={linkStyle("/race")}>
                     Races
                 </Link>
+                <button style={linkStyle("#")} onClick={logout}>{authText}</button>
+                {
+                    user && (
+                        <Link href="/upload" style={linkStyle("/upload")}>
+                            Upload
+                        </Link>
+                    )
+                }
                 <input
-                placeholder="Search driver..."
-                style={{
-                    marginLeft: "auto",
-                    padding: "6px 8px"
-                }}
-            />
+                    placeholder="Search driver..."
+                    style={{
+                        marginLeft: "auto",
+                        padding: "6px 8px"
+                    }}
+                />
             </nav>
-            
+
         </>
     )
 }
