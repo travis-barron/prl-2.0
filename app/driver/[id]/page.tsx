@@ -13,12 +13,17 @@ async function getDriver(id: number) {
 export default async function DriverPage({
   params
 }: {
-  params: Promise<{ id: number }>
+  params: Promise<{ id: string }>
 }) {
 
   const { id } = await params
-  console.log(id);
-  const data = await getDriver(id)
+  const driverId = Number(id)
+
+  if (Number.isNaN(driverId)) {
+    return Response.json({ error: "Invalid driver id" }, { status: 400 })
+  }
+
+  const data = await getDriver(driverId)
 
   if (!data?.stats) {
     return <p>Driver not found</p>
