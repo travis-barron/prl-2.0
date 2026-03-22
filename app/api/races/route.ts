@@ -11,6 +11,8 @@ export async function GET() {
       race_number,
       track,
       date,
+      cautions,
+      lead_changes,
       race_results (
         finish,
         season_entries (
@@ -37,6 +39,8 @@ export async function GET() {
       raceNumber: race.race_number,
       track: race.track,
       date: race.date,
+      cautions: race.cautions,
+      lead_changes: race.lead_changes,
       winner: winner?.season_entries?.drivers?.name ?? "Unknown"
     }
   })

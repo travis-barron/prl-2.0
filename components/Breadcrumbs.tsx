@@ -3,7 +3,7 @@
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 
-export default function Breadcrumbs({items} : {items : {label: string, href: string}}) {
+export default function Breadcrumbs({ items }: { items: { label: string, href: string } }) {
   const pathname = usePathname()
   const labelMap: Record<string, string> = {
     driver: "Standings",
@@ -23,19 +23,21 @@ export default function Breadcrumbs({items} : {items : {label: string, href: str
   })
 
   return (
-    <nav style={{ marginBottom: "16px", fontSize: "14px" }}>
-      <Link href="/">Dashboard</Link>
+    <div className={"pl-2"}>
+      <nav style={{ marginBottom: "16px", fontSize: "14px" }}>
+        <Link href="/">Dashboard</Link>
 
-      {breadcrumbs.map((crumb, index) => (
-        <span key={crumb.href}>
-          {" > "}
-          {index === breadcrumbs.length - 1 ? (
-            <span>{items != null? items.label : crumb.label}</span>
-          ) : (
-            <Link href={crumb.href}>{crumb.label}</Link>
-          )}
-        </span>
-      ))}
-    </nav>
+        {breadcrumbs.map((crumb, index) => (
+          <span key={crumb.href}>
+            {" > "}
+            {index === breadcrumbs.length - 1 ? (
+              <span>{items != null ? items.label : crumb.label}</span>
+            ) : (
+              <Link href={crumb.href}>{crumb.label}</Link>
+            )}
+          </span>
+        ))}
+      </nav>
+    </div>
   )
 }

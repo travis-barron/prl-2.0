@@ -22,36 +22,39 @@ export default function DriverFinishChart({
 }) {
 
   return (
-    <div style={{ width: "100%", height: 300 }}>
-      <ResponsiveContainer>
-        <LineChart data={results}>
+    <div className="rounded-xl border overflow-x-auto mt-6">
+      <h1 className={"pb-6 text-xl font-bold bg-yellow-400 p-4 text-black"}>Driver Finish Chart</h1>
+      <div className="p-6" style={{ width: "100%", height: 300 }}>
+        <ResponsiveContainer>
+          <LineChart data={results}>
 
-          <CartesianGrid strokeDasharray="3 3" />
+            <CartesianGrid strokeDasharray="3 3" />
 
-          <XAxis
-            dataKey="raceNumber"
-            label={{ value: "Race", position: "insideBottom", offset: -5 }}
-          />
+            <XAxis
+              dataKey="raceNumber"
+              label={{ value: "Race", position: "insideBottom", offset: -5 }}
+            />
 
-          <YAxis
-            reversed
-            allowDecimals={false}
-            domain={[1, "dataMax"]}
-            label={{ value: "Finish", angle: -90, position: "insideLeft" }}
-          />
+            <YAxis
+              reversed
+              allowDecimals={false}
+              domain={[1, "dataMax"]}
+              label={{ value: "Finish", angle: -90, position: "insideLeft" }}
+            />
 
-          <Tooltip />
+            <Tooltip />
 
-          <Line
-            type="monotone"
-            dataKey="finish"
-            stroke="#8884d8"
-            strokeWidth={3}
-            dot={{ r: 5 }}
-          />
+            <Line
+              type="monotone"
+              dataKey="finish"
+              stroke="#8884d8"
+              strokeWidth={3}
+              dot={{ r: 5 }}
+            />
 
-        </LineChart>
-      </ResponsiveContainer>
+          </LineChart>
+        </ResponsiveContainer>
+      </div>
     </div>
   )
 }
