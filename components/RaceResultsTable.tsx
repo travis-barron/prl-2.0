@@ -2,7 +2,7 @@ import Link from "next/link"
 import { supabase } from "@/lib/supabase"
 import Breadcrumbs from "./Breadcrumbs"
 
-export default async function RaceResultsTable({ raceId, driverId }: { raceId: string, driverId: string }) {
+export default async function RaceResultsTable({ raceId }: { raceId: string }) {
     const query = supabase
         .from("race_results")
         .select(`
@@ -27,8 +27,6 @@ export default async function RaceResultsTable({ raceId, driverId }: { raceId: s
         `)
         .eq("race_id", raceId)
         .order("finish")
-
-        if (driverId != null) query.eq("season_entries.drivers.id", driverId)
     
     const { data, error } = await query;
 
