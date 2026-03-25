@@ -2,7 +2,60 @@ import Link from "next/link"
 import { supabase } from "@/lib/supabase"
 import Breadcrumbs from "./Breadcrumbs"
 
+async function GetPointsSystem() {
+
+    const {data: seasonData, error } = await supabase
+        .from('seasons')
+        .select(`points_system_id`)
+        .eq('active', true)
+
+    if (!seasonData || seasonData.length == 0)
+    {
+        console.error('Invalid season entered. No points system to retrieve')
+        return null;
+    }
+
+    const systemIds = seasonData[0].points_system_id
+
+    const { data: positions } = await supabase
+        .from("points_positions")
+        .select("position, points")
+        .eq("system_id", systemIds)
+
+    const { data: bonuses } = await supabase
+        .from("points_bonus")
+        .select("type, points")
+        .eq("system_id", systemIds)
+
+    if (!positions || !bonuses) {
+        console.error('Invalid system ID. No points system loaded.')
+        return null;
+    }
+
+    const system = {
+        positions: Object.fromEntries(
+            positions.map(p => [p.position, p.points])
+        ),
+        bonus: Object.fromEntries(
+            bonuses.map(b => [b.type, b.points])
+        )
+    }
+
+    console.log(system)
+    return system;
+}
+
 export default async function RaceResultsTable({ raceId }: { raceId: string }) {
+    const system = await GetPointsSystem()
+
+    if (!system)
+    {
+        return(
+        <>
+            <h1>Unable to load data. No points system loaded.</h1>
+        </>)
+    }
+
     const query = supabase
         .from("race_results")
         .select(`
@@ -27,7 +80,7 @@ export default async function RaceResultsTable({ raceId }: { raceId: string }) {
         `)
         .eq("race_id", raceId)
         .order("finish")
-    
+
     const { data, error } = await query;
 
     if (!data || data.length === 0) {
@@ -37,6 +90,13 @@ export default async function RaceResultsTable({ raceId }: { raceId: string }) {
             </div>
         )
     }
+
+    const standings = data.map((row: any) => ({
+        driverId: row.season_entries.drivers.id,
+        points: system.positions[row.finish]
+    }))
+
+    console.log(standings)
 
     const results = data.map((row: any) => ({
         finish: row.finish,
@@ -68,44 +128,46 @@ export default async function RaceResultsTable({ raceId }: { raceId: string }) {
                     </h1>
                     <br />
                     <div className="px-4">
-                    <table className="min-w-full" 
-                        style={{
-                            width: "100%",
-                            borderCollapse: "collapse"
-                        }}
-                    >
-                        <thead>
-                            <tr>
-                                <th align="left">Pos</th>
-                                <th align="left">Driver</th>
-                                <th align="left">#</th>
-                                <th align="left">Start</th>
-                                <th align="left">Diff</th>
-                                <th align="left">Laps</th>
-                                <th align="left">Led</th>
-                                <th align="left">Status</th>
-                            </tr>
-                        </thead>
-
-                        <tbody>
-                            {sorted.map((r, i) => (
-                                <tr key={r.finish} style={{fontWeight: r.finish === 1 ? "bold" : "normal"}} className={i % 2 == 1 ? "bg-grey-100" : "bg-black"}>
-                                    <td>{r.finish}</td>
-                                    <td>
-                                        <Link href={`/driver/${encodeURIComponent(r.id)}`}>
-                                            {r.driver}
-                                        </Link>
-                                    </td>
-                                    <td>{r.carNumber}</td>
-                                    <td>{r.start}</td>
-                                    <td>{r.start - r.finish}</td>
-                                    <td>{r.lapsCompleted}</td>
-                                    <td>{r.lapsLed}</td>
-                                    <td>{r.status}</td>
+                        <table className="min-w-full"
+                            style={{
+                                width: "100%",
+                                borderCollapse: "collapse"
+                            }}
+                        >
+                            <thead>
+                                <tr>
+                                    <th align="left">Pos</th>
+                                    <th align="left">Driver</th>
+                                    <th align="left">#</th>
+                                    <th align="left">Start</th>
+                                    <th align="left">Diff</th>
+                                    <th align="left">Laps</th>
+                                    <th align="left">Led</th>
+                                    <th align="left">Status</th>
+                                    <th align="left">Points</th>
                                 </tr>
-                            ))}
-                        </tbody>
-                    </table>
+                            </thead>
+
+                            <tbody>
+                                {sorted.map((r, i) => (
+                                    <tr key={r.finish} style={{ fontWeight: r.finish === 1 ? "bold" : "normal" }} className={i % 2 == 1 ? "bg-grey-100" : "bg-black"}>
+                                        <td>{r.finish}</td>
+                                        <td>
+                                            <Link href={`/driver/${encodeURIComponent(r.id)}`}>
+                                                {r.driver}
+                                            </Link>
+                                        </td>
+                                        <td>{r.carNumber}</td>
+                                        <td>{r.start}</td>
+                                        <td>{r.start - r.finish}</td>
+                                        <td>{r.lapsCompleted}</td>
+                                        <td>{r.lapsLed}</td>
+                                        <td>{r.status}</td>
+                                        <td>{standings?.find(d => d.driverId == r.id)?.points}{console.log(standings)}</td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>
